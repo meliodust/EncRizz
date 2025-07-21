@@ -1,7 +1,7 @@
 import socket
 from crypto import full_encrypt
 
-HOST = '100.119.56.57'  # Tailscale IP of server
+HOST = '100.xxx.xxx.xxx'  # Tailscale IP of server
 PORT = 65432
 server_public_key = (11, 817)  # Match what the server prints
 
