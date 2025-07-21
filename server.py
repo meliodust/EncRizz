@@ -1,7 +1,7 @@
-import socket, pickle
-from crypto import generate_rsa_keys, decrypt_pipeline
+import socket
+from crypto import generate_rsa_keys, full_decrypt
 
-HOST = '127.0.0.1'
+HOST = '0.0.0.0'
 PORT = 65432
 
 # RSA Key Generation
@@ -15,10 +15,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     conn, addr = s.accept()
     with conn:
         print(f"[SERVER] Connected by {addr}")
-        while True:
-            data = conn.recv(4096)
-            if not data:
-                break
-            cipher_b64, rsa_enc_key = pickle.loads(data)
-            plaintext = decrypt_pipeline(cipher_b64, rsa_enc_key, private_key)
-            print(f"[SERVER] Decrypted Message: {plaintext}")
+        data = conn.recv(4096).decode()
+        if data:
+            cipher_b64, encrypted_key = data.split('||')
+            decrypted_text = full_decrypt(cipher_b64, encrypted_key, private_key)
+            print(f"[SERVER] Decrypted Message: {decrypted_text}")
