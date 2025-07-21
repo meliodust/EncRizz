@@ -44,32 +44,35 @@ def caesar_decrypt(text, shift=5):
 def transposition_encrypt(text, key="CIPHER"):
     n_cols = len(key)
     n_rows = (len(text) + n_cols - 1) // n_cols
-    grid = [['' for _ in range(n_cols)] for _ in range(n_rows)]
 
+    # Fill grid row-wise
+    grid = [['' for _ in range(n_cols)] for _ in range(n_rows)]
     for i, char in enumerate(text):
         grid[i // n_cols][i % n_cols] = char
 
-    key_order = sorted(list(key))
-    col_order = [key_order.index(k) + list(key_order).count(k)*i for i, k in enumerate(key)]
+    # Sort columns based on alphabetical order of the key
+    col_order = sorted(range(n_cols), key=lambda i: key[i])
 
     result = ''
-    for col in sorted(range(n_cols), key=lambda x: key[col]):
+    for col in col_order:
         for row in grid:
             if row[col]:
                 result += row[col]
     return result
 
+
 def transposition_decrypt(cipher, key="CIPHER"):
     n_cols = len(key)
     n_rows = (len(cipher) + n_cols - 1) // n_cols
-    sorted_key = sorted(list(key))
-    col_order = sorted(range(n_cols), key=lambda x: key[x])
 
-    # Calculate column lengths
+    col_order = sorted(range(n_cols), key=lambda i: key[i])
+
+    # Calculate column lengths (some columns may have fewer letters)
+    total_cells = n_rows * n_cols
     full_cols = len(cipher) % n_cols
     col_lengths = [n_rows if i < full_cols else n_rows - 1 for i in range(n_cols)]
 
-    # Fill columns
+    # Fill columns in the correct order
     cols = {}
     index = 0
     for col in col_order:
@@ -77,13 +80,14 @@ def transposition_decrypt(cipher, key="CIPHER"):
         cols[col] = list(cipher[index:index + length])
         index += length
 
-    # Reconstruct rows
+    # Reconstruct the text row-wise
     plaintext = ''
     for r in range(n_rows):
         for c in range(n_cols):
-            if cols[c]:
+            if cols.get(c) and cols[c]:
                 plaintext += cols[c].pop(0)
     return plaintext
+
 
 # =========================
 # ===== VIGENERE ==========
