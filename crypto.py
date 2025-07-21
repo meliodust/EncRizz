@@ -159,6 +159,8 @@ def vernam_decrypt(cipher, key):
 # ==== FULL ENCRYPTION ====
 # =========================
 def full_encrypt(plaintext, rsa_pub_key):
+    plaintext = plaintext.upper().replace(" ", "")
+
     # Step 1-5 (Layered Ciphers)
     stage1 = caesar_encrypt(plaintext)
     stage2 = transposition_encrypt(stage1)
