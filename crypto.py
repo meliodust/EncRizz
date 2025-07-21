@@ -90,56 +90,64 @@ def transposition_decrypt(cipher, key="CIPHER"):
 # =========================
 def vigenere_encrypt(text, key="STORM"):
     result = []
-    key = key
-    k = 0
-    for c in text:
-        if c.isalpha():
-            shift = ord(key[k % len(key)].upper()) - ord('A')
-            base = 'A' if c.isupper() else 'a'
-            result.append(chr((ord(c) - ord(base) + shift) % 26 + ord(base)))
-            k += 1
+    key = key.upper()
+    key_index = 0
+
+    for char in text:
+        if char.isalpha():
+            shift = ord(key[key_index % len(key)]) - ord('A')
+            base = ord('A') if char.isupper() else ord('a')
+            result.append(chr((ord(char) - base + shift) % 26 + base))
+            key_index += 1
         else:
-            result.append(c)
+            result.append(char)  # Keep spaces/punctuation as-is
     return ''.join(result)
 
-def vigenere_decrypt(cipher, key="STORM"):
+def vigenere_decrypt(text, key="STORM"):
     result = []
-    key = key
-    k = 0
-    for c in cipher:
-        if c.isalpha():
-            shift = ord(key[k % len(key)].upper()) - ord('A')
-            base = 'A' if c.isupper() else 'a'
-            result.append(chr((ord(c) - ord(base) - shift) % 26 + ord(base)))
-            k += 1
+    key = key.upper()
+    key_index = 0
+
+    for char in text:
+        if char.isalpha():
+            shift = ord(key[key_index % len(key)]) - ord('A')
+            base = ord('A') if char.isupper() else ord('a')
+            result.append(chr((ord(char) - base - shift) % 26 + base))
+            key_index += 1
         else:
-            result.append(c)
+            result.append(char)
     return ''.join(result)
+
 
 # =========================
 # CUSTOM POLYALPHABETIC ===
 # =========================
-def custom_poly_encrypt(text, shifts=[3,1,4]):
+def custom_poly_encrypt(text, shifts=[3, 1, 4]):
     result = []
-    for i, c in enumerate(text):
-        if c.isalpha():
-            shift = shifts[i % len(shifts)]
-            base = 'A' if c.isupper() else 'a'
-            result.append(chr((ord(c) - ord(base) + shift) % 26 + ord(base)))
+    shift_index = 0
+    for char in text:
+        if char.isalpha():
+            shift = shifts[shift_index % len(shifts)]
+            base = ord('A') if char.isupper() else ord('a')
+            result.append(chr((ord(char) - base + shift) % 26 + base))
+            shift_index += 1
         else:
-            result.append(c)
+            result.append(char)
     return ''.join(result)
 
-def custom_poly_decrypt(text, shifts=[3,1,4]):
+def custom_poly_decrypt(text, shifts=[3, 1, 4]):
     result = []
-    for i, c in enumerate(text):
-        if c.isalpha():
-            shift = shifts[i % len(shifts)]
-            base = 'A' if c.isupper() else 'a'
-            result.append(chr((ord(c) - ord(base) - shift) % 26 + ord(base)))
+    shift_index = 0
+    for char in text:
+        if char.isalpha():
+            shift = shifts[shift_index % len(shifts)]
+            base = ord('A') if char.isupper() else ord('a')
+            result.append(chr((ord(char) - base - shift) % 26 + base))
+            shift_index += 1
         else:
-            result.append(c)
+            result.append(char)
     return ''.join(result)
+
 
 # =========================
 # ==== VERNAM (OTP) =======
