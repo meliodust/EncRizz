@@ -162,9 +162,9 @@ def vernam_decrypt(cipher, key):
     return vernam_encrypt(cipher, key)
 
 # =========================
-# ==== FULL ENCRYPTION ====
+# ==== FULL ENCRYPTION (RSA MODE) ====
 # =========================
-def full_encrypt(plaintext, rsa_pub_key):
+def full_encrypt_rsa(plaintext, rsa_pub_key):
     # Hash for integrity
     hash_value = md5_hash(plaintext)
 
@@ -182,13 +182,44 @@ def full_encrypt(plaintext, rsa_pub_key):
     cipher_b64 = base64.b64encode(vernam_cipher.encode()).decode()
     return cipher_b64, encrypted_key, hash_value
 
-def full_decrypt(cipher_b64, encrypted_key, rsa_priv_key):
+
+def full_decrypt_rsa(cipher_b64, encrypted_key, rsa_priv_key):
     vernam_cipher = base64.b64decode(cipher_b64).decode()
 
     vernam_ints = list(map(int, encrypted_key.split(',')))
     vernam_key = ''.join(chr(rsa_decrypt(i, rsa_priv_key)) for i in vernam_ints)
 
     stage4 = vernam_decrypt(vernam_cipher, vernam_key)
+    stage3 = custom_poly_decrypt(stage4)
+    stage2 = vigenere_decrypt(stage3)
+    stage1 = transposition_decrypt(stage2)
+    plaintext = caesar_decrypt(stage1)
+    return plaintext
+
+
+# =========================
+# ==== FULL ENCRYPTION (SYMMETRIC CHAT MODE) ====
+# =========================
+def full_encrypt(plaintext, symmetric_key):
+    hash_value = md5_hash(plaintext)
+
+    stage1 = caesar_encrypt(plaintext)
+    stage2 = transposition_encrypt(stage1)
+    stage3 = vigenere_encrypt(stage2)
+    stage4 = custom_poly_encrypt(stage3)
+
+    repeated_key = (symmetric_key * ((len(stage4) // len(symmetric_key)) + 1))[:len(stage4)]
+    vernam_cipher = vernam_encrypt(stage4, repeated_key)
+
+    cipher_b64 = base64.b64encode(vernam_cipher.encode()).decode()
+    return cipher_b64, "sym", hash_value
+
+
+def full_decrypt(cipher_b64, _, symmetric_key):
+    vernam_cipher = base64.b64decode(cipher_b64).decode()
+
+    repeated_key = (symmetric_key * ((len(vernam_cipher) // len(symmetric_key)) + 1))[:len(vernam_cipher)]
+    stage4 = vernam_decrypt(vernam_cipher, repeated_key)
     stage3 = custom_poly_decrypt(stage4)
     stage2 = vigenere_decrypt(stage3)
     stage1 = transposition_decrypt(stage2)
